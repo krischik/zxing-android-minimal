@@ -91,7 +91,7 @@
                 <!-- See http://code.google.com/p/maven-android-plugin/ -->
                 <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                 <artifactId>android-maven-plugin</artifactId>
-                <version>3.4.1</version>
+                <version>3.6.0</version>
                 <configuration>
                     <sdk>
                         <platform>${android.platform}</platform>
@@ -110,6 +110,27 @@
         </repository>
     </distributionManagement>
 
+  <!-- Repositories –––––––––––––––––––––––––––––––––––––––––– {{{1 ––––– -->
+  <repositories>
+    <repository>
+      <id>Noser-Library</id>
+      <name>Noser-Library</name>
+      <url>https://ps.noser.com/svn/a20999002006/04_Software/repository</url>
+    </repository>
+    <repository>
+      <id>codehaus.org</id>
+      <name>Codehaus repository</name>
+      <url>http://repository.codehaus.org/</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>codehaus.org</id>
+      <url>http://repository.codehaus.org</url>
+      <name>Codehaus repository</name>
+    </pluginRepository>
+  </pluginRepositories>
+  <!-- ––––––––––––––––––––––––––––––––––––––––––––––––––––––– }}}1 ––––– -->
   <!-- Profiles –––––––––––––––––––––––––––––––––––––––––––––– {{{1 ––––– -->
   <profiles>
     <!-- Release ––––––––––––––––––––––––––––––––––––––––––––––– {{{2 ––––– -->
@@ -146,14 +167,12 @@
         </plugins>
       </build>
     </profile>
-    <!-- ––––––––––––––––––––––––––––––––––––––––––––––––––––––– }}}2 ––––– -->
+  <!-- ––––––––––––––––––––––––––––––––––––––––––––––––––––––– }}}2 ––––– -->
   </profiles>
   <!-- Properties –––––––––––––––––––––––––––––––––––––––––––– {{{1 ––––– -->
   <properties>
     <android.platform>17</android.platform>
-    <android.version>4.2_r1</android.version>
+    <android.version>4.2.2_r2</android.version>
   </properties>
   <!-- ––––––––––––––––––––––––––––––––––––––––––––––––––––––– }}}1 ––––– -->
-
-
 </project>
