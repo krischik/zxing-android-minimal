@@ -6,7 +6,7 @@
 
     <groupId>com.embarkmobile</groupId>
     <artifactId>zxing-android-minimal</artifactId>
-    <version>1.1.2</version>
+    <version>1.1.4</version>
     <packaging>apklib</packaging>
 
 
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>core</artifactId>
-            <version>2.1</version>
+            <version>2.2</version>
             <scope>compile</scope>
         </dependency>
 
@@ -43,13 +43,16 @@
 
 
     <build>
-        <finalName>${project.artifactId}</finalName>
-        <sourceDirectory>src</sourceDirectory>
 
+        <extensions>
+            <extension>
+                <groupId>org.springframework.build</groupId>
+                <artifactId>aws-maven</artifactId>
+                <version>4.4.0.RELEASE</version>
+            </extension>
       <!--
       – You never know which transport is neede to fill a local repository
       -->
-        <extensions>
           <extension>
             <groupId>org.apache.maven.wagon</groupId>
             <artifactId>wagon-ssh</artifactId>
@@ -76,6 +79,9 @@
             <version>1.8</version>
           </extension>
         </extensions>
+
+        <finalName>${project.artifactId}</finalName>
+        <sourceDirectory>src</sourceDirectory>
 
         <plugins>
             <plugin>
