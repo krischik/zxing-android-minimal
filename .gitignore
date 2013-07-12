@@ -2,3 +2,7 @@ gen
 target
 *.jar
 .backups
+.gradle
+build
+.idea
+maven-repository
