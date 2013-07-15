@@ -12,7 +12,7 @@
 
 SETLOCAL
     SET PATH=%PATH%;C:\opt\Git\bin
-    SET PATH=%PATH%;C:\opt\Scala\2.10.0\bin
+    SET PATH=%PATH%;C:\opt\Scala\2.10.2\bin
 
     CALL scala -language:postfixOps -save %~f0 %*
 ENDLOCAL
@@ -35,14 +35,14 @@ val mvn          = if (System.getProperty ("os.name") contains "Windows")
         "mvn" :: Nil
     }
 
-mvn ::: "--activate-profiles" :: "release" :: "install" :: Nil !;
-mvn ::: "--activate-profiles" :: "release" :: "site:site" :: Nil !;
-
-mvn :::
-    "--define" :: "repo.id="   + Project_Name ::
-    "--define" :: "repo.name=" + Maven_Name   ::
-    "--define" :: "repo.url="  + Maven_Deploy ::
-    "deploy"   :: Nil !;
+(mvn ::: "--activate-profiles" :: "release" :: "install" :: Nil).!
+(mvn ::: "--activate-profiles" :: "release" :: "site:site" :: Nil).!
+(mvn :::
+    "--define" :: "repo.id="   + Project_Name	    ::
+    "--define" :: "repo.name=" + Maven_Name	    ::
+    "--define" :: "repo.url="  + Maven_Deploy	    ::
+    "--define" :: "repo="      + Maven_Repository   ::    
+    "deploy"   :: Nil).!
 
 // vim: set wrap tabstop=8 shiftwidth=4 softtabstop=4 noexpandtab :
 // vim: set textwidth=0 filetype=scala foldmethod=marker nospell :
