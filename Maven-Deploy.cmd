@@ -24,9 +24,10 @@ GOTO :eof
 import scala.sys.process._
 import com.noser.Maven._
 
-val Maven_Deploy = System.getenv ("MAVEN_DEPLOY")
-val Project_Name = System.getenv ("PROJECT_NAME")
-val Maven_Name   = Project_Name +" Maven Repository"
+val Project_Name     = System.getenv ("PROJECT_NAME")
+val Maven_Deploy     = System.getenv ("MAVEN_DEPLOY")
+val Maven_Repository = System.getenv ("MAVEN_REPOSITORY")
+val Maven_Name	     = Project_Name +" Maven Repository"
 
 (mvn ::: "--activate-profiles" :: "release" :: "install" :: Nil).!
 (mvn ::: "--activate-profiles" :: "release" :: "site:site" :: Nil).!
