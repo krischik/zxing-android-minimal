@@ -11,8 +11,8 @@
 @ECHO OFF
 
 SETLOCAL
-    SET PATH=%PATH%;C:\opt\Git\bin
-    SET PATH=%PATH%;C:\opt\Scala\2.10.2\bin
+    SET PATH=%PATH%;C:\opt\Git\1.9.4\bin
+    SET PATH=%PATH%;C:\opt\Scala\2.11.4\bin
 
     SET NOSER_VERSION=3.1.3
     CALL scala -classpath c:/Work/Repositories/Local/com/noser/Noser-Scalascript/%NOSER_VERSION%/Noser-Scalascript-%NOSER_VERSION%.jar -save %~f0 %*

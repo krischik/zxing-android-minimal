@@ -6,3 +6,7 @@ target
 build
 .idea
 maven-repository
+*.iml
+local.properties
+mvn-clone
+

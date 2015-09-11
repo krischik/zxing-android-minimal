@@ -1,84 +1,158 @@
-# ZXing Android Minimal
+# ZXing Android Embedded
 
-This is a port of the [ZXing Android Barcode Scanner application](http://code.google.com/p/zxing/) as a minimal Android
-library project, for embedding in other Android applications. This is not affiliated with the official ZXing project.
+Barcode scanning library for Android, using [ZXing][2] for decoding.
 
-Generally it is recommended to scan a barcode [via intents](http://code.google.com/p/zxing/wiki/ScanningViaIntent).
-If however that is not possible, you can embed the barcode scanner in your application by using this library.
+The project is loosly based on the [ZXing Android Barcode Scanner application][2], but is not affiliated with the official ZXing project.
+
+Features:
+
+1. Can be used via Intents (little code required).
+2. Can be embedded in an Activity, for advanced customization of UI and logic.
+3. Scanning can be performed in landscape or portrait mode.
+4. Camera is managed in a background thread, for fast startup time.
+
+## Version 3
+
+Where [version 2][4] was essentially just a stripped-down version of the [Barcode Scanner application][2],
+version 3 is a rewrite of a large part of the codebase, making it more versatile and customizable.
+
+With the rewrite, many APIs for UI customization were removed. Instead, it is now recommended
+to create a custom Activity using the lower-level components directly
+(see [Customization](#customization) for details).
+
+Other notable changes:
+* The camera is now loaded in a background thread, making the activity start faster.
+* The camera preview and decoding now function correctly in any orientation.
 
 ## Adding aar dependency with Gradle
 
+From version 3 this is a single library, supporting Gingerbread and later versions of Android
+(API level 9+). If you need support for earlier Android versions, use [version 2][4].
+
 Add the following to your build.gradle file:
 
-    repositories {
-        mavenCentral()
+```groovy
+repositories {
+    jcenter()
+}
 
-        maven {
-            url "https://raw.github.com/embarkmobile/zxing-android-minimal/mvn-repo/maven-repository/"
-        }
-    }
+dependencies {
+    compile 'com.journeyapps:zxing-android-embedded:3.0.2@aar'
+    compile 'com.google.zxing:core:3.2.0'
+}
+```
 
-    dependencies {
-        compile 'com.google.zxing:core:2.2'
-        compile 'com.embarkmobile:zxing-android-minimal:1.1.4@aar'
-    }
+## Usage with Maven
 
+Maven is not supported currently, but it is possible that the aar can be used. Pull requests are
+welcome.
 
-## Adding apklib dependency with Maven
+## Usage with IntentIntegrator
 
-Add as a dependency to your Android project's pom.xml:
+Launch the intent with the default options:
+```java
+new IntentIntegrator(this).initiateScan(); // `this` is the current Activity
+```
 
-    <repositories>
-        <repository>
-            <id>zxing-android-minimal</id>
-            <name>ZXing Android Minimal</name>
-            <url>https://raw.github.com/embarkmobile/zxing-android-minimal/mvn-repo/maven-repository</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
+Use from a Fragment:
+```java
+IntentIntegrator.forFragment(this).initiateScan(); // `this` is the current Fragment
 
-    <dependency>
-        <groupId>com.embarkmobile</groupId>
-        <artifactId>zxing-android-minimal</artifactId>
-        <version>1.1.4</version>
-        <type>apklib</type>
-        <scope>compile</scope>
-    </dependency>
+// If you're using the support library, use IntentIntegrator.forSupportFragment(this) instead.
+```
 
+Customize options:
+```java
+IntentIntegrator integrator = new IntentIntegrator(this);
+integrator.setDesiredBarcodeFormats(IntentIntegrator.ONE_D_CODE_TYPES);
+integrator.setPrompt("Scan a barcode");
+integrator.setCameraId(0);  // Use a specific camera of the device
+integrator.setBeepEnabled(false);
+integrator.setBarcodeImageEnabled(true);
+integrator.initiateScan();
+```
 
-Make sure manifest merging in your project's pom.xml. See [https://github.com/jayway/maven-android-plugin/pull/135](https://github.com/jayway/maven-android-plugin/pull/135) for details.
+See [IntentIntegrator][5] for more options.
 
-Alternatively - *only if not using manifest merging* - add to your AndroidManifest.xml:
+### Changing the orientation
 
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.FLASHLIGHT"/>
+To change the orientation, create a new Activity extending CaptureActivity, and specify the
+orientation in your `AndroidManifest.xml`.
 
-    <activity android:clearTaskOnLaunch="true" android:configChanges="orientation|keyboardHidden"
-            android:name="com.google.zxing.client.android.CaptureActivity" android:screenOrientation="landscape"
-            android:stateNotNeeded="true" android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-            android:windowSoftInputMode="stateAlwaysHidden"/>
-    <activity android:name="com.google.zxing.client.android.HelpActivity" android:screenOrientation="user"/>
+Sample:
 
+```java
+public class CaptureActivityAnyOrientation extends CaptureActivity {
 
-## Usage
+}
+```
 
-Launch the intent using the bundled IntentIntegrator:
+```xml
+<activity android:name=".CaptureActivityAnyOrientation"
+          android:screenOrientation="fullSensor"
+          android:stateNotNeeded="true"
+          android:theme="@style/zxing_CaptureTheme"
+          android:windowSoftInputMode="stateAlwaysHidden">
 
-    IntentIntegrator.initiateScan(this);    // `this` is the current Activity or Context
+</activity>
+```
+
+```java
+IntentIntegrator integrator = new IntentIntegrator(this);
+integrator.setCaptureActivity(CaptureActivityAnyOrientation.class);
+integrator.setOrientationLocked(false);
+integrator.initiateScan();
+```
+
+The previous API for `integrator.setOrientation()` was removed. It caused the Activity to be created
+in landscape orientation, then destroyed and re-created in the requested orientation, which creates
+a bad user experience. The only way around this is to specify the orientation in the manifest.
+
+### Customization
+
+For more control over the UI or scanning behaviour, some components may be used directly:
+
+* BarcodeView: Handles displaying the preview and decoding of the barcodes.
+* CompoundBarcodeView: Combines BarcodeView with a viewfinder for feedback, as well as some status /
+  prompt text.
+* CaptureManager: Manages the InactivityTimer, BeepManager, orientation lock, and returning of the
+  barcode result.
+
+These components can be used from any Activity.
+
+Samples:
+* [ContinuousCaptureActivity][6]: continuously scan and display results (instead of a once-off scan).
+* [ToolbarCaptureActivity][8]: Same as the normal CaptureActivity, but with a Lollipop Toolbar.
 
 ## Building locally
 
     ./gradlew assemble
 
-To produce .aar artifacts:
+To deploy the artifacts the your local Maven repository:
 
-    ./gradlew uploadArchives
+    ./gradlew publishToMavenLocal
+
+You can then use your local version by specifying in your `build.gradle` file:
+
+    repositories {
+        mavenLocal()
+    }
+
+## Sponsored by
+
+[Journey][1] - Build enterprise mobile apps for iOS and Android. Work in the cloud, code in JavaScript and forget about back-end development.
+
 
 ## License
 
-[Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+[Apache License 2.0][7]
+
+
+[1]: http://journeyapps.com
+[2]: https://github.com/zxing/zxing/
+[3]: https://github.com/zxing/zxing/wiki/Scanning-Via-Intent
+[4]: https://github.com/journeyapps/zxing-android-embedded/blob/2.x/README.md
+[5]: zxing-android-embedded/src/com/google/zxing/integration/android/IntentIntegrator.java
+[6]: sample/src/main/java/example/zxing/ContinuousCaptureActivity.java
+[7]: http://www.apache.org/licenses/LICENSE-2.0
+[8]: sample/src/main/java/example/zxing/ToolbarCaptureActivity.java
